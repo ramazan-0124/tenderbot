@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tender Smart Search</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="search-panel">
+        <div class="brand">
+          <span>Goszakup Smart Search</span>
+          <h1>Умный поиск товаров на госзакупках</h1>
+        </div>
+
+        <form id="searchForm" class="search-form">
+          <label class="query-field">
+            <span>Что ищем</span>
+            <input id="queryInput" type="search" placeholder="например: сервер для больницы, лицензия 1С, ноутбук i7">
+          </label>
+          <div class="controls">
+            <label>
+              <span>Мин. сумма</span>
+              <input id="amountInput" type="number" min="0" step="100000" value="0">
+            </label>
+            <label>
+              <span>Лимит</span>
+              <input id="limitInput" type="number" min="1" max="50" step="1" value="30">
+            </label>
+            <button type="submit">Искать</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="insights">
+        <div>
+          <b id="resultCount">0</b>
+          <span>найдено</span>
+        </div>
+        <div>
+          <b id="termsLabel">—</b>
+          <span>ключи</span>
+        </div>
+      </section>
+
+      <section id="phraseBox" class="phrases"></section>
+      <section id="results" class="results"></section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
