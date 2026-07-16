@@ -1,6 +1,8 @@
 const form = document.querySelector("#searchForm");
 const queryInput = document.querySelector("#queryInput");
 const amountInput = document.querySelector("#amountInput");
+const statusInput = document.querySelector("#statusInput");
+const excludeInput = document.querySelector("#excludeInput");
 const limitInput = document.querySelector("#limitInput");
 const results = document.querySelector("#results");
 const phraseBox = document.querySelector("#phraseBox");
@@ -14,21 +16,27 @@ form.addEventListener("submit", async (event) => {
 
 queryInput.value = localStorage.getItem("lastQuery") || "сервер";
 amountInput.value = localStorage.getItem("lastAmount") || "1000000";
+statusInput.value = localStorage.getItem("lastStatus") || "accepting";
+excludeInput.value = localStorage.getItem("lastExclude") || "";
 
 search();
 
 async function search() {
   const query = queryInput.value.trim();
   const minAmount = amountInput.value || "0";
+  const status = statusInput.value || "all";
+  const exclude = excludeInput.value.trim();
   const limit = limitInput.value || "30";
   if (!query) return;
 
   localStorage.setItem("lastQuery", query);
   localStorage.setItem("lastAmount", minAmount);
+  localStorage.setItem("lastStatus", status);
+  localStorage.setItem("lastExclude", exclude);
 
   setLoading(true);
   try {
-    const url = `/api/search?q=${encodeURIComponent(query)}&min_amount=${encodeURIComponent(minAmount)}&limit=${encodeURIComponent(limit)}`;
+    const url = `/api/search?q=${encodeURIComponent(query)}&min_amount=${encodeURIComponent(minAmount)}&status=${encodeURIComponent(status)}&exclude=${encodeURIComponent(exclude)}&limit=${encodeURIComponent(limit)}`;
     const response = await fetch(url);
     const data = await response.json();
     render(data);
@@ -59,6 +67,9 @@ function renderCard(item) {
   const terms = (item.matched_terms || [])
     .map((term) => `<span class="pill">${escapeHtml(term)}</span>`)
     .join("");
+  const reasons = (item.reasons || [])
+    .map((reason) => `<li>${escapeHtml(reason)}</li>`)
+    .join("");
 
   return `
     <article class="card">
@@ -78,6 +89,10 @@ function renderCard(item) {
       </div>
 
       <div class="matches">${terms || '<span class="muted">Совпадения не выделены</span>'}</div>
+      <div class="reason-box">
+        <b>Почему подходит</b>
+        <ul>${reasons || "<li>Есть релевантные совпадения по запросу</li>"}</ul>
+      </div>
       <a class="source-link" href="${escapeAttribute(item.url)}" target="_blank" rel="noreferrer">Открыть на goszakup.gov.kz</a>
     </article>
   `;

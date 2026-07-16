@@ -30,10 +30,20 @@ class Handler(BaseHTTPRequestHandler):
             query = params.get("q", [""])[0].strip()
             min_amount = parse_float(params.get("min_amount", ["0"])[0])
             limit = int(parse_float(params.get("limit", ["30"])[0]) or 30)
+            status_filter = params.get("status", ["all"])[0].strip() or "all"
+            exclude_terms = parse_terms(params.get("exclude", [""])[0])
             if not query:
                 self.send_json({"query": "", "terms": [], "searchPhrases": [], "count": 0, "items": []})
                 return
-            self.send_json(smart_search(query=query, min_amount=min_amount, limit=limit))
+            self.send_json(
+                smart_search(
+                    query=query,
+                    min_amount=min_amount,
+                    limit=limit,
+                    status_filter=status_filter,
+                    exclude_terms=exclude_terms,
+                )
+            )
             return
 
         self.send_error(404)
@@ -67,6 +77,10 @@ def parse_float(value: str) -> float:
         return float(value.replace(" ", "").replace(",", "."))
     except ValueError:
         return 0
+
+
+def parse_terms(value: str) -> list[str]:
+    return [item.strip() for item in value.replace("\n", ",").split(",") if item.strip()]
 
 
 def main() -> None:

@@ -73,13 +73,15 @@ label span {
 }
 
 input,
+select,
 button {
   min-height: 46px;
   border-radius: 8px;
   font: inherit;
 }
 
-input {
+input,
+select {
   width: 100%;
   border: 1px solid var(--line);
   padding: 0 14px;
@@ -94,7 +96,7 @@ input {
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr 120px 150px;
+  grid-template-columns: 1fr 180px 120px 150px;
   gap: 12px;
   align-items: end;
 }
@@ -228,6 +230,32 @@ button:disabled {
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 12px;
+}
+
+.reason-box {
+  margin: 0 0 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f7faf8;
+  border: 1px solid var(--line);
+}
+
+.reason-box b {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--green-dark);
+  font-size: 13px;
+}
+
+.reason-box ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.reason-box li + li {
+  margin-top: 4px;
 }
 
 .source-link {

@@ -25,11 +25,23 @@
               <input id="amountInput" type="number" min="0" step="100000" value="0">
             </label>
             <label>
+              <span>Статус</span>
+              <select id="statusInput">
+                <option value="accepting">Только прием заявок</option>
+                <option value="published">Опубликованные</option>
+                <option value="all">Все статусы</option>
+              </select>
+            </label>
+            <label>
               <span>Лимит</span>
               <input id="limitInput" type="number" min="1" max="50" step="1" value="30">
             </label>
             <button type="submit">Искать</button>
           </div>
+          <label>
+            <span>Исключить слова</span>
+            <input id="excludeInput" type="text" placeholder="например: vps, аренда, хостинг">
+          </label>
         </form>
       </section>
 

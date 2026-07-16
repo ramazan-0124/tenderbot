@@ -79,18 +79,31 @@ class Lot:
     url: str
     score: int
     matched_terms: list[str]
+    reasons: list[str]
     source: str = "goszakup"
 
     def to_dict(self) -> dict:
         return asdict(self)
 
 
-def smart_search(query: str, min_amount: float = 0, limit: int = 30) -> dict:
+def smart_search(
+    query: str,
+    min_amount: float = 0,
+    limit: int = 30,
+    status_filter: str = "all",
+    exclude_terms: list[str] | None = None,
+) -> dict:
     profile = build_query_profile(query)
+    excluded = unique(exclude_terms or [])
     raw_lots: dict[str, Lot] = {}
 
     for phrase in profile["search_phrases"]:
         for lot in fetch_lots(phrase, count=50):
+            if not status_matches(lot, status_filter):
+                continue
+            if has_excluded_terms(lot, excluded):
+                continue
+
             scored = score_lot(lot, profile["terms"], profile["required_terms"])
             if scored.score <= 0:
                 continue
@@ -111,6 +124,8 @@ def smart_search(query: str, min_amount: float = 0, limit: int = 30) -> dict:
         "query": query,
         "terms": profile["terms"],
         "searchPhrases": profile["search_phrases"],
+        "statusFilter": status_filter,
+        "excludeTerms": excluded,
         "count": len(items),
         "items": [item.to_dict() for item in items],
     }
@@ -192,6 +207,7 @@ def fetch_lots(keyword: str, count: int = 50) -> list[Lot]:
                 url=lot_url,
                 score=0,
                 matched_terms=[],
+                reasons=[],
             )
         )
     return lots
@@ -217,6 +233,7 @@ def score_lot(lot: Lot, terms: list[str], required_terms: list[str]) -> Lot:
     matched = [term for term in terms if normalize(term) in full_text]
     required_matches: list[str] = []
     synonym_terms = [term for term in terms if term not in required_terms]
+    reasons: list[str] = []
 
     score = 0
     for required_term in required_terms:
@@ -238,6 +255,7 @@ def score_lot(lot: Lot, terms: list[str], required_terms: list[str]) -> Lot:
         if concept_matched:
             required_matches.append(required_term)
             score += concept_score
+            reasons.append(f"совпало ключевое понятие: {required_term}")
 
     for term in required_matches:
         if term in title_text:
@@ -260,13 +278,22 @@ def score_lot(lot: Lot, terms: list[str], required_terms: list[str]) -> Lot:
 
     if "опубликован" in normalize(lot.status):
         score += 6
+        reasons.append("статус опубликован")
+    if "прием заявок" in normalize(lot.status):
+        score += 8
+        reasons.append("идет прием заявок")
     if lot.amount and lot.amount >= 1_000_000:
         score += 2
+        reasons.append("сумма выше 1 000 000 тг")
 
     if required_terms and not required_matches:
         score -= 15
     elif len(required_terms) > 1 and len(required_matches) == 1:
         score -= 12
+        reasons.append("найдена только часть запроса")
+
+    if matched:
+        reasons.append("найдены слова: " + ", ".join(unique(matched)[:5]))
 
     return Lot(
         lot_number=lot.lot_number,
@@ -279,8 +306,24 @@ def score_lot(lot: Lot, terms: list[str], required_terms: list[str]) -> Lot:
         url=lot.url,
         score=max(score, 0),
         matched_terms=unique(matched),
+        reasons=unique_text(reasons),
         source=lot.source,
     )
+
+
+def status_matches(lot: Lot, status_filter: str) -> bool:
+    if status_filter == "accepting":
+        return "прием заявок" in normalize(lot.status)
+    if status_filter == "published":
+        return "опубликован" in normalize(lot.status)
+    return True
+
+
+def has_excluded_terms(lot: Lot, exclude_terms: list[str]) -> bool:
+    if not exclude_terms:
+        return False
+    full_text = normalize(f"{lot.title} {lot.announcement} {lot.customer} {lot.method} {lot.status}")
+    return any(term in full_text for term in exclude_terms)
 
 
 def normalize(value: str) -> str:
@@ -309,5 +352,17 @@ def unique(items: Iterable[str]) -> list[str]:
         value = normalize(item)
         if value and value not in seen:
             seen.add(value)
+            result.append(value)
+    return result
+
+
+def unique_text(items: Iterable[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for item in items:
+        value = " ".join(item.split())
+        key = normalize(value)
+        if value and key not in seen:
+            seen.add(key)
             result.append(value)
     return result
