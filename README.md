@@ -33,3 +33,13 @@ HOST=0.0.0.0 PORT=8090 python3 app/main.py
 ```
 
 Инструкция для Hetzner: [deploy/hetzner.md](deploy/hetzner.md).
+
+## Деплой изменений
+
+После локальных изменений можно обновить GitHub и сервер одной командой:
+
+```bash
+./scripts/deploy.sh "Описание изменения"
+```
+
+Скрипт проверит Python-файлы, сделает commit, отправит код в GitHub, выполнит `git pull` на сервере и перезапустит сервис.
