@@ -17,16 +17,118 @@
 body {
   margin: 0;
   background:
+    radial-gradient(circle at top left, rgba(22, 115, 77, 0.12), transparent 360px),
     linear-gradient(180deg, #eaf3ee 0%, rgba(234, 243, 238, 0) 360px),
     var(--bg);
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+.app-layout {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 18px;
+  border-right: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding: 8px 8px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--green);
+  color: #fff;
+  font-weight: 950;
+}
+
+.sidebar-brand strong,
+.sidebar-brand small {
+  display: block;
+}
+
+.sidebar-brand small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.nav-item {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 750;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background: var(--soft);
+  color: var(--green-dark);
+}
+
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #f7faf8;
+  color: var(--green-dark);
+  font-size: 17px;
+}
+
+.nav-item.active .nav-icon {
+  background: #fff;
+  color: var(--amber);
+}
+
+.nav-item em {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #edf7f2;
+  color: var(--green-dark);
+  font-size: 10px;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.muted-link {
+  color: #6f7c76;
+}
+
 .shell {
   width: min(1080px, 100%);
-  margin: 0 auto;
-  padding: 28px 16px 44px;
+  margin: 0;
+  padding: 28px 22px 44px;
 }
 
 .search-panel {
@@ -271,6 +373,42 @@ button:disabled {
 }
 
 @media (max-width: 760px) {
+  .app-layout {
+    display: block;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    padding: 14px 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sidebar-brand {
+    margin-bottom: 12px;
+    padding: 4px 4px 12px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .nav-item {
+    min-width: max-content;
+  }
+
+  .nav-item em {
+    display: none;
+  }
+
+  .shell {
+    padding: 18px 12px 34px;
+  }
+
   .controls,
   .insights,
   .meta {
